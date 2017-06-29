@@ -23,6 +23,8 @@ import Divider from 'material-ui/Divider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import CircularProgress from 'material-ui/CircularProgress';
+import Subheader from 'material-ui/Subheader';
+import TextField from 'material-ui/TextField';
 import { Helmet } from "react-helmet";
 import axios from 'axios';
 
@@ -54,40 +56,125 @@ class Main extends Component {
 		this.state = {
 			drawerOpen: false,
 			logged: false,
-			isLogging: false
+			isLogging: false,
+			iconMenuOpen: false
 		}
 	}
 
-	handleDrawerToggle = () => this.setState({ drawerOpen: !this.state.drawerOpen })
+	handleDrawerToggle = () => {
 
-	handleDrawerClose = () => this.setState({ drawerOpen: false })
+		this.setState({ 
+			iconMenuOpen: false, 
+			drawerOpen: !this.state.drawerOpen 
+		})
+	}
+
+	handleDrawerOpen = (callback) => {
+
+		this.setState({ 
+			iconMenuOpen: false, 
+			drawerOpen: true 
+		})
+
+		if (callback) callback();
+
+	}
+
+	handleDrawerClose = () => {
+
+		this.setState({ 
+			iconMenuOpen: false, 
+			drawerOpen: false 
+		})
+	}
 
 	handleTestLogin = () => {
 
 		this.setState({ isLogging: true })
 
 		// Debug
-		setTimeout(() => { 
+		setTimeout(() => {
 
 			this.setState({ logged: !this.state.logged, isLogging: false }); 
 
-		}, 2000)
+			this.handleDrawerClose();
 
-	};
+		}, 2000)
+	}
+
+	handleAppBarLogout = () => {
+
+		this.handleDrawerOpen(() => {
+
+			this.handleTestLogin();
+
+		});
+	}
+
+	toggleIconMenu = () => {
+
+		this.setState({
+			iconMenuOpen: !this.state.iconMenuOpen
+		})
+	}
 
 	_renderLoginLink(link) {
 
 		if (this.state.isLogging) {
-
 			return (
-				<div style={{ textAlign: 'center' }}>
+				<div style={{ marginTop: 20, textAlign: 'center' }}>
+					<Subheader>{ this.state.logged ? 'Logging out...' : 'Logging in...' }</Subheader>
 					<CircularProgress style={{ marginTop: 20 }} />
 				</div>
 			)
 		}
 
+		if (link == 'Logout') {
+			return (
+				<div style={{ marginTop: 20, textAlign: 'center' }}>
+					<RaisedButton style={{ marginTop: 10, marginLeft: 10, marginRight: 10 }} label={ link } primary={ true } onTouchTap={ this.handleTestLogin } />
+				</div>
+			)
+		}
+
 		return (
-			<MenuItem>{ link }</MenuItem>
+			<div style={{ marginTop: 20, marginLeft: 20, marginRight: 20 }}>
+				<TextField hintText="Username" fullWidth={ true } />
+				<TextField hintText="Password" fullWidth={ true } />
+				<RaisedButton style={{ marginTop: 10 }} label={ link } primary={ true } fullWidth={ true } onTouchTap={ this.handleTestLogin } />
+			</div>
+		)
+	}
+
+	_renderDrawerMenuLoggedLinks() {
+
+		if (this.state.isLogging) { 
+
+			return false;
+		}
+
+		return (
+			<div>
+				<Avatar
+					icon={ <FontIcon className="muidocs-icon-communication-voicemail" /> }
+					color={ blue300 }
+					backgroundColor={ blue300 }
+					size={ 215 }
+					style={{ margin: 20 }}
+				/>
+				<NavLink onTouchTap={ this.handleDrawerClose } to="/">
+					<MenuItem>Dashboard</MenuItem>
+				</NavLink>
+				<NavLink onTouchTap={ this.handleDrawerClose } to="/channels">
+					<MenuItem>Channels</MenuItem>
+				</NavLink>
+				<NavLink onTouchTap={ this.handleDrawerClose } to="/how-to-use">
+					<MenuItem>How to use</MenuItem>
+				</NavLink>
+				<NavLink onTouchTap={ this.handleDrawerClose } to="/help">
+					<MenuItem>Help</MenuItem>
+				</NavLink>
+			</div>
 		)
 	}
 
@@ -97,37 +184,19 @@ class Main extends Component {
 			
 			return (  
 				<div className="drawerContent">
-					<Avatar
-						icon={<FontIcon className="muidocs-icon-communication-voicemail" />}
-						color={ blue300 }
-						backgroundColor={ blue300 }
-						size={215}
-						style={{ margin: 20 }}
-					/>
-					<NavLink onTouchTap={ this.handleDrawerClose } to="/">
-						<MenuItem>Dashboard</MenuItem>
-					</NavLink>
-					<NavLink onTouchTap={ this.handleDrawerClose } to="/channels">
-						<MenuItem>Channels</MenuItem>
-					</NavLink>
-					<NavLink onTouchTap={ this.handleDrawerClose } to="/how-to-use">
-						<MenuItem>How to use</MenuItem>
-					</NavLink>
-					<NavLink onTouchTap={ this.handleDrawerClose } to="/help">
-						<MenuItem>Help</MenuItem>
-					</NavLink>
-					<NavLink onTouchTap={ this.handleTestLogin } to="/">
-						{ this._renderLoginLink('Logout') }
-					</NavLink>
+					<AppBar title="Menu" showMenuIconButton={ false } titleStyle={{ textAlign: 'center' }} />
+					{ this._renderDrawerMenuLoggedLinks() }
+					
+					{ this._renderLoginLink('Logout') }
 				</div>
 			)
 		}
 
 		return (
 			<div className="drawerContent">
-				<NavLink onTouchTap={ this.handleTestLogin } to="/">
-					{ this._renderLoginLink('Login') }
-				</NavLink>
+				<AppBar title="Menu" showMenuIconButton={ false } titleStyle={{ textAlign: 'center' }} />
+				
+				{ this._renderLoginLink('Login') }
 			</div>
 		)
 	}
@@ -137,7 +206,7 @@ class Main extends Component {
 		if (this.state.logged) {
 			
 			return (
-				<IconMenu iconButtonElement={ <IconButton iconClassName="material-icons">account_circle</IconButton> }>
+				<IconMenu open={ this.state.iconMenuOpen } onTouchTap={ this.toggleIconMenu } iconButtonElement={ <IconButton iconClassName="material-icons">account_circle</IconButton> }>
 					<NavLink onTouchTap={ this.handleDrawerClose } to="/profile">
 						<MenuItem primaryText="Profile" />
 					</NavLink>
@@ -145,7 +214,7 @@ class Main extends Component {
 						<MenuItem primaryText="Settings" />
 					</NavLink>
 					<Divider />
-					<NavLink onTouchTap={ this.handleDrawerClose } to="/">
+					<NavLink onTouchTap={ this.handleAppBarLogout } to="/">
 						<MenuItem primaryText="Logout" />
 					</NavLink>
 				</IconMenu>

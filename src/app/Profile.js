@@ -69,10 +69,9 @@ class Profile extends Component {
 							<TableHeaderColumn>Status</TableHeaderColumn>
 						</TableRow>
 					</TableHeader>
-					<TableBody ref={ (tableBody) => { this.tableBody = tableBody; } }>
+					<TableBody ref={ (tableBody) => { this.tableBody = tableBody; }}>
 					{
 						this.state.exampleData.map((item) => {
-
 							return (
 								<TableRow key={ item.id }>
 									<TableRowColumn>{ item.id }</TableRowColumn>

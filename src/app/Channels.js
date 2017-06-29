@@ -33,19 +33,21 @@ class Channels extends Component {
 
 	addChannel(data) {
 
+		console.log(data)
 	}
 
 	componentDidMount() {
 
+		console.log('loaded channels page')
 	}
 
 	handleAddDialogSubmit = () => {
 
-		console.log(this.state);
+		console.log(this.state)
 	}
 
 	handleAddDialogOpen = () => this.setState({ addDialogOpen: true })
-	
+
 	handleAddDialogClose = () => this.setState({ addDialogOpen: false })
 
 	handleAddDialogName = (event) => this.setState({ addDialogName: event.target.value })
